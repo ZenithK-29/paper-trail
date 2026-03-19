@@ -1,20 +1,15 @@
 "use client"
 
-import * as React from "react"
 import { Calendar } from "@/components/ui/calendar"
-interface Props {
-  selected: Date | undefined,
-  onSelect: (date: Date | undefined) => void
-}
+import { DayPickerProps } from "react-day-picker"
+type Props = DayPickerProps 
 
-export function CalendarDemo({selected, onSelect}: Props) {
+export function CalendarDemo(props: Props) {
 
 
   return (
     <Calendar
-      mode="single"
-      selected={selected}
-      onSelect={onSelect}
+      {...props}
       className="rounded-lg border"
       captionLayout="dropdown"
     />

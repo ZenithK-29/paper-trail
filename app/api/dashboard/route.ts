@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
                 $gte: start,
                 $lte: end
             }
-        })
+        }).sort({createdAt: -1})
 
         if(!note){
             return NextResponse.json({error: true, message: "Error retrieving the note"}, {status: 404})

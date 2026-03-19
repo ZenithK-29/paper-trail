@@ -4,7 +4,7 @@ import Notes from "@/models/notes"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { error } from "console"
+
 
 
 type ParamsType = {
@@ -31,7 +31,7 @@ export async function PUT(request: Request, {params}: ParamsType){
             {new: true}
         )
 
-        return NextResponse.json({error: true, message: "Notes updated successfully!", content: updatedNote}, {status: 201})
+        return NextResponse.json({error: false, message: "Notes updated successfully!", content: updatedNote}, {status: 201})
 
 
     } catch (error) {   
