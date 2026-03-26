@@ -15,11 +15,11 @@ const Navbar = () => {
         <Link href={"/"}><h1 className='logo font-bold text-3xl text-orange-400'>PaperTrail</h1></Link>
       </div>
       <ul className='flex items-center gap-10 font-semibold'>
-        <Link href={"/"}><li className='hover:text-amber-100 cursor-pointer'>Home</li></Link>
+        <Link href={"/"}><li className='hover:text-orange-400 cursor-pointer trasnition-all duration-170'>Home</li></Link>
         {session ? (
           <>
-          <button onClick={()=>signOut()} className='bg-orange-400 p-2  rounded-md text-white cursor-pointer py-2'>Sign out</button>
-          <button onClick={()=>{router.push("/dashboard")}} className='text-white bg-orange rounded-md bg-orange-400 p-2 cursor-pointer'>Welcome {session.user.email}</button>
+          <button onClick={()=>signOut()} className='bg-orange-400 p-2  rounded-md text-white cursor-pointer py-1'>Sign out</button>
+          <button onClick={()=>{router.push("/dashboard")}} className='text-white bg-orange rounded-md bg-orange-400 p-2 cursor-pointer py-1'>Welcome {session.user.email}</button>
           </>
         ) : (
           <>

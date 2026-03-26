@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
                 $gte: start,
                 $lte: end
             }
-        })
+        }).sort({createdAt: -1})
 
         return NextResponse.json({error: false, message: "Successfully retrieved your notes wihin your range!", content: notes}, {status: 200})
 

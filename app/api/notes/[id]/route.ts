@@ -4,7 +4,7 @@ import Notes from "@/models/notes"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-
+import cloudinary from "@/lib/cloudinary"
 
 
 type ParamsType = {
@@ -22,11 +22,15 @@ export async function PUT(request: Request, {params}: ParamsType){
 
         const body: NotesType = await request.json()
 
+        console.log("PUT BODY: ", body)
+
 
         const updatedNote = await Notes.findByIdAndUpdate(id, 
             {
                 title: body.title,
-                description: body.description
+                description: body.description,
+                imageUrl: body.imageUrl,
+                imagePublicId: body.imagePublicId
             },
             {new: true}
         )
@@ -51,7 +55,27 @@ export async function DELETE(request: Request, {params}: ParamsType){
         }
         await connectToDb()
 
+        
         const {id} = await params
+
+        const note = await Notes.findOne({
+            _id: id,
+            userId: session.user.id
+        })
+
+
+        if(!note){
+            return NextResponse.json({error: true, message: "Couldn't find the note to delete"}, {status: 404})
+        }
+
+        if(note.imagePublicId){
+            try {
+                const result = await cloudinary.uploader.destroy(note.imagePublicId)
+                console.log("Deleting cloudinary image: ", result)
+            } catch (error) {
+                console.log("Cloudinary delete failed: ", error)
+            }
+        }
 
         const deletedNote = await Notes.findOneAndDelete({
             _id: id,

@@ -1,5 +1,6 @@
 "use client"
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import Navbar from '@/components/Navbar'
 import { CalendarDemo } from '@/components/CalenderModule'
@@ -27,6 +28,9 @@ import { Label } from "@/components/ui/label"
 import { Button } from '@/components/ui/button'
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { NotesType } from '@/models/notes'
+import { ChatBubble } from '@/components/ChatBubble'
+
 
 export type Mode = "date" | "range" | null
 
@@ -45,8 +49,15 @@ const Dashboard = () => {
   const [editId, seteditId] = useState<string | null>(null)
   const [open, setopen] = useState(false)
   const [openId, setdOpenId] = useState<string | null>(null)
+  const [secureUrl, setsecureUrl] = useState("")
+  const [imgPubId, setimgPubId] = useState("")
+  const [file, setfile] = useState<File | null>(null)
+  const [dialogMode, setdialogMode] = useState<"edit" | "image" | null>(null)
+  const [uploading, setuploading] = useState(false)
+  const [fileName, setfileName] = useState("")
+  
   const router = useRouter()
-
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
 
   useEffect(() => {
@@ -92,13 +103,6 @@ const Dashboard = () => {
         })
       )]
 
-      console.log("Parsed:", parsed)
-      console.log("Example:", parsed[0])
-      console.log("Length:", parsed.length)
-      console.log("type:", typeof (parsed[0]))
-      console.log(parsed.includes("2026-03-16"))
-
-
 
       sethighlightedNotesDate(parsed)
     }
@@ -124,7 +128,7 @@ const Dashboard = () => {
       const timer = setTimeout(async () => {
         const res = await fetch(`/api/notes/search?q=${search}`)
         const data = await res.json()
-        console.log("Search query: ", data.content)
+
         setnotes(data.content)
 
       }, 300)
@@ -157,7 +161,7 @@ const Dashboard = () => {
 
 
     setnotes(data.content)
-    console.log("Ranged notes: ", data.content)
+
   }
 
 
@@ -166,18 +170,26 @@ const Dashboard = () => {
     e.preventDefault()
 
     if (editId) {
+      const body:NotesType = {
+        title,
+        description,
+      } 
+
+      if(secureUrl){
+        body.imageUrl = secureUrl
+        body.imagePublicId = imgPubId
+      }
       const res = await fetch(`/api/notes/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title: title,
-          description: description
-        })
+        body: JSON.stringify(body)
       })
 
       const data = await res.json()
+
+      console.log("Put req testing", data)
 
       setnotes(prev =>
         prev.map(note =>
@@ -206,6 +218,33 @@ const Dashboard = () => {
       position: "top-right",
     });
   }
+
+  const handleUpload = (file: File) => {
+    setuploading(true)
+    const reader = new FileReader()
+
+    reader.readAsDataURL(file)
+
+    reader.onloadend = async () => {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: JSON.stringify({ image: reader.result })
+      })
+
+      const data = await res.json()
+
+      setsecureUrl(data.content.secure_url)
+      setimgPubId(data.content.public_id)
+
+      setuploading(false)
+
+      console.log("Your image data: ", data)
+      console.log("Your image url: ", data.content.secure_url)
+      console.log("Your image url: ", data.content.public_id)
+    }
+
+  }
+
 
 
 
@@ -321,22 +360,37 @@ const Dashboard = () => {
 
                   <div
                     onClick={() => {
+                      setdialogMode("edit")
                       setdOpenId(item._id)
                       seteditId(item._id)
                       settitle(item.title)
                       setdescription(item.description)
                     }}
-                    className="card group bg-white h-50 w-100 rounded-md flex flex-col shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 hover:border-orange-300">
-                    <h1 className='text-orange-400 text-2xl uppercase font-semibold inline-flex justify-center items-center h-11'>{item.title}</h1>
+                    className="card group bg-white h-53 px-2 w-100 rounded-md flex flex-col shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 hover:border-orange-300">
+                    <h1 className='text-orange-400 text-2xl uppercase font-semibold inline-flex justify-center items-center h-11 '>{item.title}</h1>
                     <hr className='border-orange-300 w-3/4 mx-auto' />
                     <p className='p-2 flex-1 overflow-y-auto custom-scroll flex items-center justify-center'>{item.description}</p>
+
+                    {!item.imageUrl ? null : (
+
+                      <div 
+                      className='flex justify-end pr-1' 
+                      onClick={(e)=>{
+                        e.stopPropagation()
+                        setdialogMode("image")
+                        setdOpenId(item._id)
+                      }}>
+                          <img src="/attach.png" alt="attach" className='h-5 w-5 hover:scale-110 hover:invert-25' />
+                      </div>
+                    )}
                   </div>
 
                 </DialogTrigger>
 
                 <DialogContent>
-
-                  <form onSubmit={editForm}>
+                  
+                  {dialogMode === "edit" && (
+                    <form onSubmit={editForm}>
 
                     <DialogHeader>
                       <DialogTitle>Edit Note</DialogTitle>
@@ -357,6 +411,27 @@ const Dashboard = () => {
                           value={description}
                           onChange={(e) => setdescription(e.target.value)} />
                       </Field>
+                      <Field className='mb-1'>
+                        <Label htmlFor='image-file'>Upload your image</Label>
+                        <Input id='image-file'
+                          ref={fileInputRef}
+                          className='hidden'
+                          type='file'
+                          accept='image/*'
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file){
+                              setfileName(file.name)
+                              handleUpload(file)
+                            } 
+                              
+                          }} />
+                          {fileName && (
+                            <p>{fileName}</p>
+                          )}
+                        <Button type='button' variant={'outline'} onClick={()=>{fileInputRef.current?.click()}}>Upload</Button>
+
+                      </Field>
                     </FieldGroup>
                     <DialogFooter>
 
@@ -368,10 +443,22 @@ const Dashboard = () => {
                       <DialogClose asChild>
                         <Button variant={"outline"}>Cancel</Button>
                       </DialogClose>
-                      <Button type="submit">Save changes</Button>
+                      <Button type="submit" disabled={uploading}>{uploading ? "Uploading..." : "Save"}</Button>
                     </DialogFooter>
 
                   </form>
+                  )}
+
+                  {dialogMode === "image" && (
+                    <div>
+                      <DialogHeader>
+                      <DialogTitle>Your Image</DialogTitle>
+                      <DialogDescription className='my-2'>Attached Image</DialogDescription>
+                    </DialogHeader>
+                    <img src={item.imageUrl} alt="Image"/>
+                    </div>
+                  )}
+                  
 
                 </DialogContent>
 
@@ -379,11 +466,6 @@ const Dashboard = () => {
             ))
           )}
         </div>
-
-
-
-
-
 
       </div>
 
@@ -400,6 +482,8 @@ const Dashboard = () => {
         theme="light"
         transition={Bounce}
       />
+
+      <ChatBubble someNotes={notes}/>
     </div >
   )
 }

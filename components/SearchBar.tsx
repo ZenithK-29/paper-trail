@@ -9,6 +9,7 @@ interface SearchBarProps {
   setMode: React.Dispatch<React.SetStateAction<Mode>>
 }
 
+
 function SearchBar({ search, setSearch, mode, setMode }: SearchBarProps) {
   return (
     <div className='bg-gray-200 w-3/4 mx-auto'>
@@ -30,11 +31,11 @@ function SearchBar({ search, setSearch, mode, setMode }: SearchBarProps) {
         >
 
           <div className="flex gap-4 mr-2 absolute right-10 top-3.5">
-            <ToggleGroupItem value='date' className='text-sm data-[state=on]:bg-slate-300 bg-orange-400 text-white p-5 !rounded-md'>
+            <ToggleGroupItem value='date' className='text-sm data-[state=on]:bg-orange-400 bg-slate-300 text-white p-5 !rounded-md'>
               By date
             </ToggleGroupItem>
 
-            <ToggleGroupItem value='range' className='text-sm data-[state=on]:bg-slate-300 bg-orange-400 text-white p-5 !rounded-md mr-2 '>
+            <ToggleGroupItem value='range' className='text-sm data-[state=on]:bg-orange-400 bg-slate-300 text-white p-5 !rounded-md mr-2 '>
               By date range
             </ToggleGroupItem>
 

@@ -6,14 +6,18 @@ export interface NotesType {
     description: string,
     createdAt?: Date,
     updatedAt?: Date,
-    userId?: string
+    userId?: string,
+    imageUrl?: string,
+    imagePublicId?: string
 }
 
 const notesSchema =  new Schema<NotesType>(
     {
         title: {type: String, required: true},
         description: {type: String, required: true},
-        userId: {type: String, required: true}
+        userId: {type: String, required: true},
+        imageUrl: {type: String},
+        imagePublicId: {type: String},
     },
     {
         timestamps: true
