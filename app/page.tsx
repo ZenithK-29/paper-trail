@@ -278,14 +278,14 @@ export default function Home() {
                               seteditId(item._id)
                             }}
                             key={item._id}
-                            className="card group bg-white px-2 h-53 w-100 rounded-md flex flex-col shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 hover:border-orange-300">
+                            className="card group bg-white px-2 h-57 w-100 rounded-md flex flex-col shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 hover:border-orange-300">
                             <div className="text-orange-400 text-2xl uppercase font-semibold inline-flex justify-center items-center h-11">{item.title}</div>
                             <hr className='border-orange-300 w-3/4 mx-auto' />
                             <div className="p-2 flex-1 overflow-y-auto custom-scroll flex items-center justify-center">{item.description}</div>
                             {!item.imageUrl ? null : (
 
                               <div 
-                              className='flex justify-end pr-1 cursor-pointer'
+                              className='flex justify-end pr-1 pb-[5px] cursor-pointer'
                               onClick={(e)=>{
                                 e.stopPropagation()
                                 setopenId(item._id)

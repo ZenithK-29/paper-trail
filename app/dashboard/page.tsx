@@ -366,7 +366,7 @@ const Dashboard = () => {
                       settitle(item.title)
                       setdescription(item.description)
                     }}
-                    className="card group bg-white h-53 px-2 w-100 rounded-md flex flex-col shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 hover:border-orange-300">
+                    className="card group bg-white h-60 px-2 w-100 rounded-md flex flex-col shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 hover:border-orange-300">
                     <h1 className='text-orange-400 text-2xl uppercase font-semibold inline-flex justify-center items-center h-11 '>{item.title}</h1>
                     <hr className='border-orange-300 w-3/4 mx-auto' />
                     <p className='p-2 flex-1 overflow-y-auto custom-scroll flex items-center justify-center'>{item.description}</p>
@@ -374,7 +374,7 @@ const Dashboard = () => {
                     {!item.imageUrl ? null : (
 
                       <div 
-                      className='flex justify-end pr-1' 
+                      className='flex justify-end pr-1 pb-[5px]' 
                       onClick={(e)=>{
                         e.stopPropagation()
                         setdialogMode("image")
